@@ -68,16 +68,8 @@ class BeamSearchDecoder:
             encoder_outputs: the encoder outputs from the transformer encoder.
               type: tuple, (encoder_outputs, input_mask)
         """
-        cand_logits = tf.TensorArray(
-            tf.float32, size=0, dynamic_size=True, clear_after_read=False
-        )
-        cand_logits = cand_logits.unstack(
-            tf.transpose(candidate_holder.cand_logits, [1, 0, 2])
-        )
-        cand_seqs = tf.TensorArray(
-            tf.float32, size=0, dynamic_size=True, clear_after_read=False
-        )
-        cand_seqs = cand_seqs.unstack(tf.transpose(candidate_holder.cand_seqs, [1, 0]))
+        cand_logits = candidate_holder.cand_logits
+        cand_seqs = candidate_holder.cand_seqs
         logits, new_cand_logits, states = self.decoder_one_step(
             cand_logits, cand_seqs, self.states, encoder_outputs
         )
@@ -92,7 +84,6 @@ class BeamSearchDecoder:
                 other_scores, new_states = scorer.score(candidate_holder, new_scores)
                 if other_scores is not None:
                     new_scores += other_scores
-        new_cand_logits = tf.transpose(new_cand_logits.stack(), [1, 0, 2])
         return new_scores, new_cand_logits, new_states
 
     def deal_with_completed(

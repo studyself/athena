@@ -94,7 +94,7 @@ def build_model_from_jsonfile(jsonfile, pre_run=True):
         model=model,
         optimizer=optimizer,
     )
-    if pre_run or p.pretrained_model is not None:
+    if pre_run:
         # pre_run for lazy initilize in keras
         solver = BaseSolver(
             model,
